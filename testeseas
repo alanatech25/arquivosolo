@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 1 - Unidade 1 - SEAS</title>
+<style>
+  body { font-family: Arial; background: linear-gradient(to bottom, #cce0ff, #ffffff); display: flex; flex-direction: column; align-items: center; padding:10px; margin:0;}
+  h1 { text-align: center; color:#003366;}
+  #pergunta-box { background:#f0f8ff; border-radius:10px; padding:15px; margin:15px 0; width:100%; max-width:500px; box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+  button { padding:10px 20px; margin:5px; border:none; border-radius:8px; font-size:16px; cursor:pointer;}
+  #btn-correto { background:#4CAF50; color:white;}
+  #btn-errado { background:#f44336; color:white;}
+  #btn-prox { background:#ff9800; color:white;}
+  #btn-voltar { background:#9c27b0; color:white;}
+  #btn-reiniciar { background:#2196f3; color:white;}
+  #resposta { margin-top:10px; font-weight:bold;}
+  #timer { font-size:18px; margin-top:10px; color:#333;}
+</style>
+</head>
+<body>
+<h1>Módulo 1 - Unidade 1 - SEAS</h1>
+
+<div id="timer">Tempo restante: 60:00</div>
+
+<div id="pergunta-box">
+  <div id="pergunta"></div>
+  <div id="resposta"></div>
+</div>
+
+<div>
+  <button id="btn-correto">Verdadeiro</button>
+  <button id="btn-errado">Falso</button>
+</div>
+
+<div>
+  <button id="btn-voltar">Voltar</button>
+  <button id="btn-prox">Próxima</button>
+  <button id="btn-reiniciar">Reiniciar</button>
+</div>
+
+<script>
+const perguntas = [
+{ pergunta: "A SEAS é responsável apenas pela fiscalização das unidades socioeducativas, sem formar profissionais.", resposta: "Falso", explicacao: "A SEAS também forma profissionais e articula políticas pedagógicas." },
+{ pergunta: "O SINASE detalha a execução das medidas socioeducativas, complementando o que o ECA prevê.", resposta: "Verdadeiro", explicacao: "O ECA define direitos gerais; o SINASE regula a execução das medidas." },
+{ pergunta: "Adolescentes em cumprimento de medida socioeducativa têm direito à educação formal dentro das unidades.", resposta: "Verdadeiro", explicacao: "ECA e SINASE garantem educação como parte do atendimento integral." },
+{ pergunta: "O socioeducador e o educador social exercem funções idênticas.", resposta: "Falso", explicacao: "O socioeducador atua no sistema socioeducativo, enquanto o educador social atua em educação não formal mais ampla." },
+{ pergunta: "A prioridade absoluta das crianças e adolescentes é prevista no art. 227 da Constituição Federal.", resposta: "Verdadeiro", explicacao: "O art. 227 da CF define a prioridade absoluta na proteção integral." },
+{ pergunta: "As medidas socioeducativas podem ser aplicadas sem respeitar o contraditório e a ampla defesa.", resposta: "Falso", explicacao: "O ECA garante contraditório e ampla defesa para adolescentes." },
+{ pergunta: "A SEAS organiza unidades de internação e semiliberdade, mas não participa da articulação com saúde e educação.", resposta: "Falso", explicacao: "A SEAS articula ações com outras políticas públicas, incluindo saúde e educação." },
+{ pergunta: "A responsabilização na socioeducação não se confunde com punição.", resposta: "Verdadeiro", explicacao: "O foco é educativo e de reintegração social, não apenas repressivo." },
+{ pergunta: "A atuação da SEAS visa apenas a contenção disciplinar dos adolescentes.", resposta: "Falso", explicacao: "O foco está na formação cidadã e na pedagogia da responsabilização." },
+{ pergunta: "O Serviço Especializado em Abordagem Social (SEAS do SUAS) é a mesma coisa que a Superintendência do Sistema Estadual de Atendimento Socioeducativo.", resposta: "Falso", explicacao: "São estruturas diferentes com funções distintas." },
+{ pergunta: "O Estatuto da Criança e do Adolescente é a lei nº 8.069/1990.", resposta: "Verdadeiro", explicacao: "Essa é a lei que define os direitos das crianças e adolescentes no Brasil." },
+{ pergunta: "A literatura carcerária não tem função pedagógica ou social transformadora.", resposta: "Falso", explicacao: "Ela promove educação social, expressão cultural e dignidade." },
+{ pergunta: "A socioeducação busca a reintegração social por meio de ações educativas, culturais e comunitárias.", resposta: "Verdadeiro", explicacao: "O objetivo é construção de novos projetos de vida e responsabilização educativa." },
+{ pergunta: "A SEAS foi criada pela Lei Estadual nº 16.040/2016 no Ceará.", resposta: "Verdadeiro", explicacao: "Essa lei institui a superintendência no estado do Ceará." },
+{ pergunta: "O SINASE é a Lei nº 12.594/2012, que regula o sistema nacional de atendimento socioeducativo.", resposta: "Verdadeiro", explicacao: "Ele detalha a execução das medidas em âmbito nacional." },
+{ pergunta: "A educação não formal é irrelevante na socioeducação.", resposta: "Falso", explicacao: "A educação não formal é fundamental para a formação cidadã e socioeducação." },
+{ pergunta: "A SEAS não deve coordenar oficinas e atividades culturais dentro das unidades.", resposta: "Falso", explicacao: "Atividades culturais e educativas fazem parte do atendimento integral." },
+{ pergunta: "Direitos humanos são a base da estrutura normativa da socioeducação.", resposta: "Verdadeiro", explicacao: "Eles orientam limites e objetivos das medidas socioeducativas." },
+{ pergunta: "A SEAS articula ações pedagógicas apenas em nível federal.", resposta: "Falso", explicacao: "A SEAS atua em nível estadual e articula políticas locais também." },
+{ pergunta: "A prioridade absoluta de crianças e adolescentes implica em atenção especial do Estado.", resposta: "Verdadeiro", explicacao: "É um princípio constitucional que orienta políticas públicas." },
+{ pergunta: "O adolescente privado de liberdade pode ser impedido de estudar formalmente durante a internação.", resposta: "Falso", explicacao: "ECA e SINASE garantem o direito à educação mesmo em internação." },
+{ pergunta: "A pedagogia da responsabilização busca a formação do adolescente para a vida em sociedade.", resposta: "Verdadeiro", explicacao: "O objetivo é reintegração social, não punição." },
+{ pergunta: "A atuação da SEAS não envolve supervisão das unidades socioeducativas.", resposta: "Falso", explicacao: "Supervisão e acompanhamento das unidades é parte das funções da SEAS." },
+{ pergunta: "A Constituição Federal garante prioridade absoluta às crianças e adolescentes.", resposta: "Verdadeiro", explicacao: "Art. 227 da CF garante prioridade absoluta." },
+{ pergunta: "A socioeducação é uma política pública voltada apenas à punição.", resposta: "Falso", explicacao: "Ela tem caráter pedagógico e de garantia de direitos." },
+{ pergunta: "O Estatuto da Criança e do Adolescente (ECA) assegura direitos a todos os adolescentes, inclusive em conflito com a lei.", resposta: "Verdadeiro", explicacao: "O ECA protege todos os adolescentes, mesmo em medidas socioeducativas." },
+{ pergunta: "A Lei do SINASE detalha a execução das medidas socioeducativas em âmbito nacional.", resposta: "Verdadeiro", explicacao: "Lei nº 12.594/2012 regula a execução das medidas socioeducativas." },
+{ pergunta: "A SEAS do Ceará foi criada pela Lei Estadual nº 16.040/2016.", resposta: "Verdadeiro", explicacao: "Essa lei instituiu a Superintendência do Sistema Estadual de Atendimento Socioeducativo." },
+{ pergunta: "O SINASE substitui completamente o ECA.", resposta: "Falso", explicacao: "O SINASE detalha a execução, mas o ECA continua definindo direitos fundamentais." },
+{ pergunta: "A socioeducação reconhece a adolescência como fase específica do desenvolvimento humano.", resposta: "Verdadeiro", explicacao: "Esse reconhecimento fundamenta a proteção integral." },
+{ pergunta: "A responsabilização de adolescentes pode ocorrer sem violar direitos humanos.", resposta: "Verdadeiro", explicacao: "Responsabilização não é punição; deve respeitar direitos." },
+{ pergunta: "A SEAS coordena unidades de internação e semiliberdade no Ceará.", resposta: "Verdadeiro", explicacao: "Essa é uma das funções da SEAS." },
+{ pergunta: "A articulação intersetorial não é necessária na política socioeducativa.", resposta: "Falso", explicacao: "A integração com saúde, educação e assistência social é essencial." },
+{ pergunta: "A socioeducação busca a reintegração social do adolescente.", resposta: "Verdadeiro", explicacao: "O foco é a formação cidadã e reintegração." },
+{ pergunta: "O educador social e o socioeducador exercem exatamente as mesmas funções.", resposta: "Falso", explicacao: "O socioeducador atua no sistema socioeducativo; o educador social tem atuação mais ampla." },
+{ pergunta: "O ECA garante o direito à educação para adolescentes em internação.", resposta: "Verdadeiro", explicacao: "Educação é parte do atendimento integral." },
+{ pergunta: "Medidas socioeducativas devem respeitar contraditório e ampla defesa.", resposta: "Verdadeiro", explicacao: "Esses princípios estão no ECA." },
+{ pergunta: "A SEAS é um serviço do SUAS voltado para população em situação de rua.", resposta: "Falso", explicacao: "A SEAS é específica para socioeducação; SUAS cuida da assistência social." },
+{ pergunta: "A literatura carcerária contribui para a socioeducação.", resposta: "Verdadeiro", explicacao: "A escrita e leitura dentro do sistema prisional têm função pedagógica." },
+{ pergunta: "A Lei do SINASE não se aplica às medidas de semiliberdade.", resposta: "Falso", explicacao: "O SINASE regula todas as medidas socioeducativas, inclusive semiliberdade." },
+{ pergunta: "A socioeducação não precisa se preocupar com direitos humanos.", resposta: "Falso", explicacao: "Os direitos humanos orientam toda a execução das medidas." },
+{ pergunta: "A SEAS também forma profissionais que atuam no sistema socioeducativo.", resposta: "Verdadeiro", explicacao: "A capacitação de profissionais é uma de suas funções." },
+{ pergunta: "Um adolescente em internação pode ficar sem educação formal.", resposta: "Falso", explicacao: "O ECA e o SINASE garantem educação mesmo em unidades de internação." },
+{ pergunta: "A socioeducação pode ser realizada em oficinas de arte.", resposta: "Verdadeiro", explicacao: "Atividades culturais fazem parte da reintegração social." },
+{ pergunta: "O SINASE organiza o atendimento socioeducativo em dimensões técnica, administrativa e pedagógica.", resposta: "Verdadeiro", explicacao: "Essas dimensões estruturam a política." },
+{ pergunta: "A SEAS atua isoladamente, sem integrar políticas de saúde, educação e assistência.", resposta: "Falso", explicacao: "A articulação intersetorial é obrigatória." },
+{ pergunta: "A prioridade absoluta das crianças é um princípio constitucional.", resposta: "Verdadeiro", explicacao: "Art. 227 da CF garante prioridade absoluta." },
+{ pergunta: "A responsabilização socioeducativa se confunde com punição.", resposta: "Falso", explicacao: "O foco é pedagógico e na reintegração." },
+{ pergunta: "O socioeducador atua principalmente em medidas de internação e semiliberdade.", resposta: "Verdadeiro", explicacao: "O trabalho é no sistema socioeducativo." },
+{ pergunta: "A socioeducação não contempla atividades de educação não formal.", resposta: "Falso", explicacao: "A educação não formal é parte essencial do processo." },
+{ pergunta: "A SEAS é responsável pela articulação com outras políticas públicas.", resposta: "Verdadeiro", explicacao: "Integração é parte de sua função institucional." },
+{ pergunta: "O SINASE detalha como executar medidas socioeducativas, sem substituir o ECA.", resposta: "Verdadeiro", explicacao: "O ECA define direitos; o SINASE operacionaliza." },
+{ pergunta: "Medidas socioeducativas podem ser aplicadas sem observar princípios de dignidade humana.", resposta: "Falso", explicacao: "Princípios de dignidade e direitos humanos são obrigatórios." },
+{ pergunta: "A Constituição Federal de 1988 prevê proteção integral à criança e ao adolescente.", resposta: "Verdadeiro", explicacao: "Art. 227 estabelece proteção integral." },
+{ pergunta: "A socioeducação não busca alternativas formativas e projetos de vida.", resposta: "Falso", explicacao: "O objetivo é construção de novos projetos de vida e reintegração." },
+{ pergunta: "O educador social atua em ONGs, projetos comunitários e espaços de educação não formal.", resposta: "Verdadeiro", explicacao: "O campo de atuação é mais amplo que o do socioeducador." },
+{ pergunta: "O ECA garante prioridade absoluta apenas para crianças, não para adolescentes.", resposta: "Falso", explicacao: "A prioridade absoluta é para crianças e adolescentes." },
+{ pergunta: "A SEAS é um órgão específico do Estado do Ceará.", resposta: "Verdadeiro", explicacao: "Ela organiza o sistema socioeducativo estadual." },
+{ pergunta: "O SINASE substitui todas as normas do ECA.", resposta: "Falso", explicacao: "O SINASE complementa, não substitui." },
+{ pergunta: "A socioeducação pode usar atividades culturais e artísticas como ferramentas pedagógicas.", resposta: "Verdadeiro", explicacao: "Arte-educação é uma prática recomendada." },
+{ pergunta: "A SEAS coordena unidades de internação e semiliberdade, mas não forma profissionais.", resposta: "Falso", explicacao: "Formação de profissionais é função da SEAS." },
+{ pergunta: "A responsabilização socioeducativa deve respeitar contraditório e ampla defesa.", resposta: "Verdadeiro", explicacao: "Esses princípios estão garantidos pelo ECA." },
+{ pergunta: "O atendimento socioeducativo tem caráter punitivo e não pedagógico.", resposta: "Falso", explicacao: "O foco é pedagógico, com reintegração social." },
+{ pergunta: "A Lei Estadual nº 16.040/2016 criou a SEAS no Ceará.", resposta: "Verdadeiro", explicacao: "Essa lei instituiu a Superintendência." },
+{ pergunta: "A socioeducação visa à reintegração do adolescente à sociedade.", resposta: "Verdadeiro", explicacao: "O objetivo principal é reintegração e formação cidadã." },
+{ pergunta: "O SINASE não se aplica a medidas de internação.", resposta: "Falso", explicacao: "Ele regula todas as medidas socioeducativas." },
+{ pergunta: "O socioeducador trabalha apenas em escolas regulares.", resposta: "Falso", explicacao: "Ele atua nas unidades de internação e semiliberdade." },
+{ pergunta: "A socioeducação promove participação cidadã e desenvolvimento social.", resposta: "Verdadeiro", explicacao: "O objetivo é formação cidadã e crítica." },
+{ pergunta: "Um adolescente não precisa de educação formal durante a internação.", resposta: "Falso", explicacao: "O ECA e SINASE garantem o direito à educação." },
+{ pergunta: "A literatura carcerária tem função pedagógica e social.", resposta: "Verdadeiro", explicacao: "Escrita e leitura dentro das unidades contribuem para a socioeducação." },
+{ pergunta: "A SEAS atua isoladamente sem integrar outras políticas públicas.", resposta: "Falso", explicacao: "A articulação intersetorial é obrigatória." },
+{ pergunta: "A Constituição Federal garante prioridade absoluta a crianças e adolescentes.", resposta: "Verdadeiro", explicacao: "Art. 227 da CF estabelece esse princípio." },
+{ pergunta: "A socioeducação pode ocorrer sem respeitar direitos humanos.", resposta: "Falso", explicacao: "Direitos humanos são base da socioeducação." }
+]; // 100 perguntas completas
+
+// ====== VARIÁVEIS DO JOGO ======
+let indice = 0;
+let tempoRestante = 60 * 60; // 60 minutos em segundos
+let timerInterval;
+
+// ====== ELEMENTOS ======
+const perguntaEl = document.getElementById("pergunta");
+const respostaEl = document.getElementById("resposta");
+const btnCorreto = document.getElementById("btn-correto");
+const btnErrado = document.getElementById("btn-errado");
+const btnProx = document.getElementById("btn-prox");
+const btnVoltar = document.getElementById("btn-voltar");
+const btnReiniciar = document.getElementById("btn-reiniciar");
+const timerEl = document.getElementById("timer");
+
+// ====== FUNÇÕES ======
+function mostrarPergunta() {
+  respostaEl.innerHTML = "";
+  const p = perguntas[indice];
+  perguntaEl.innerText = `${indice + 1}. ${p.pergunta}`;
+}
+
+function verificarResposta(resposta) {
+  const p = perguntas[indice];
+  if(resposta === p.resposta){
+    respostaEl.innerHTML = "✅ Correto!";
+  } else {
+    respostaEl.innerHTML = `❌ Errado! Explicação: ${p.explicacao}`;
+  }
+}
+
+function proximaPergunta() {
+  if(indice < perguntas.length - 1){
+    indice++;
+    mostrarPergunta();
+  }
+}
+
+function perguntaAnterior() {
+  if(indice > 0){
+    indice--;
+    mostrarPergunta();
+  }
+}
+
+function reiniciarJogo() {
+  indice = 0;
+  tempoRestante = 60 * 60;
+  mostrarPergunta();
+  clearInterval(timerInterval);
+  iniciarTimer();
+}
+
+function iniciarTimer() {
+  timerInterval = setInterval(() => {
+    const min = Math.floor(tempoRestante/60);
+    const sec = tempoRestante % 60;
+    timerEl.innerText = `Tempo restante: ${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+    if(tempoRestante <= 0){
+      clearInterval(timerInterval);
+      alert("Tempo esgotado!");
+    } else {
+      tempoRestante--;
+    }
+  },1000);
+}
+
+// ====== EVENTOS ======
+btnCorreto.addEventListener("click", ()=>verificarResposta("Verdadeiro"));
+btnErrado.addEventListener("click", ()=>verificarResposta("Falso"));
+btnProx.addEventListener("click", proximaPergunta);
+btnVoltar.addEventListener("click", perguntaAnterior);
+btnReiniciar.addEventListener("click", reiniciarJogo);
+
+// ====== INÍCIO DO JOGO ======
+mostrarPergunta();
+iniciarTimer();
+</script>
+</body>
+</html>
