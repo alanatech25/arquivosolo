@@ -3,196 +3,420 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Módulo 1 - Unidade 1 - SEAS</title>
+<title>Módulo 4 (Unid.01) - SEAS</title>
+
 <style>
-  body { font-family: Arial; background: linear-gradient(to bottom, #cce0ff, #ffffff); display: flex; flex-direction: column; align-items: center; padding:10px; margin:0;}
-  h1 { text-align: center; color:#003366;}
-  #pergunta-box { background:#f0f8ff; border-radius:10px; padding:15px; margin:15px 0; width:100%; max-width:500px; box-shadow:0 4px 8px rgba(0,0,0,0.2);}
-  button { padding:10px 20px; margin:5px; border:none; border-radius:8px; font-size:16px; cursor:pointer;}
-  #btn-correto { background:#4CAF50; color:white;}
-  #btn-errado { background:#f44336; color:white;}
-  #btn-prox { background:#ff9800; color:white;}
-  #btn-voltar { background:#9c27b0; color:white;}
-  #btn-reiniciar { background:#2196f3; color:white;}
-  #resposta { margin-top:10px; font-weight:bold;}
-  #timer { font-size:18px; margin-top:10px; color:#333;}
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    padding: 10px;
+    margin: 0;
+  }
+  .container {
+    max-width: 480px;
+    margin: auto;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #aaa;
+  }
+  h1 {
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  #timer, #contador {
+    text-align: center;
+    font-size: 16px;
+    margin-top: 5px;
+  }
+  #pergunta {
+    font-size: 18px;
+    margin: 15px 0;
+    min-height: 70px;
+  }
+  .resposta-btn {
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  #btnCerto {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  #btnErrado {
+    background: #F44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  #btnProx, #btnVoltar, #btnReiniciar, #btnParar {
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  #explicacao {
+    margin-top: 10px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  /* MODAL */
+  #modalFinal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 999;
+  }
+  #modalBox {
+    background: #fff;
+    max-width: 400px;
+    margin: 20% auto;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  #modalBox h2 {
+    margin-top: 0;
+  }
+  #modalBox button {
+    margin-top: 15px;
+    padding: 10px;
+    background: #2196F3;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 </style>
 </head>
+
 <body>
-<h1>Módulo 1 - Unidade 1 - SEAS</h1>
 
-<div id="timer">Tempo restante: 60:00</div>
+<div class="container">
+  <h1>Módulo 4 (Unid.01) - SEAS</h1>
 
-<div id="pergunta-box">
-  <div id="pergunta"></div>
-  <div id="resposta"></div>
+  <div id="timer">Tempo restante: 60:00</div>
+  <div id="contador"></div>
+
+  <div id="pergunta">Carregando pergunta...</div>
+
+  <button id="btnCerto" class="resposta-btn">CERTO</button>
+  <button id="btnErrado" class="resposta-btn">ERRADO</button>
+
+  <div style="text-align:center;">
+    <button id="btnVoltar">Voltar</button>
+    <button id="btnProx">Próxima</button>
+    <button id="btnReiniciar">Reiniciar</button>
+    <button id="btnParar">Parar</button>
+  </div>
+
+  <div id="explicacao"></div>
 </div>
 
-<div>
-  <button id="btn-correto">Verdadeiro</button>
-  <button id="btn-errado">Falso</button>
-</div>
-
-<div>
-  <button id="btn-voltar">Voltar</button>
-  <button id="btn-prox">Próxima</button>
-  <button id="btn-reiniciar">Reiniciar</button>
+<!-- MODAL FINAL -->
+<div id="modalFinal">
+  <div id="modalBox">
+    <h2>Módulo 4 (Unid.01) - SEAS</h2>
+    <p id="resultadoFinal"></p>
+    <button onclick="fecharModal()">Fechar</button>
+  </div>
 </div>
 
 <script>
+// ================= PERGUNTAS =================
 const perguntas = [
-{ pergunta: "A SEAS é responsável apenas pela fiscalização das unidades socioeducativas, sem formar profissionais.", resposta: "Falso", explicacao: "A SEAS também forma profissionais e articula políticas pedagógicas." },
-{ pergunta: "O SINASE detalha a execução das medidas socioeducativas, complementando o que o ECA prevê.", resposta: "Verdadeiro", explicacao: "O ECA define direitos gerais; o SINASE regula a execução das medidas." },
-{ pergunta: "Adolescentes em cumprimento de medida socioeducativa têm direito à educação formal dentro das unidades.", resposta: "Verdadeiro", explicacao: "ECA e SINASE garantem educação como parte do atendimento integral." },
-{ pergunta: "O socioeducador e o educador social exercem funções idênticas.", resposta: "Falso", explicacao: "O socioeducador atua no sistema socioeducativo, enquanto o educador social atua em educação não formal mais ampla." },
-{ pergunta: "A prioridade absoluta das crianças e adolescentes é prevista no art. 227 da Constituição Federal.", resposta: "Verdadeiro", explicacao: "O art. 227 da CF define a prioridade absoluta na proteção integral." },
-{ pergunta: "As medidas socioeducativas podem ser aplicadas sem respeitar o contraditório e a ampla defesa.", resposta: "Falso", explicacao: "O ECA garante contraditório e ampla defesa para adolescentes." },
-{ pergunta: "A SEAS organiza unidades de internação e semiliberdade, mas não participa da articulação com saúde e educação.", resposta: "Falso", explicacao: "A SEAS articula ações com outras políticas públicas, incluindo saúde e educação." },
-{ pergunta: "A responsabilização na socioeducação não se confunde com punição.", resposta: "Verdadeiro", explicacao: "O foco é educativo e de reintegração social, não apenas repressivo." },
-{ pergunta: "A atuação da SEAS visa apenas a contenção disciplinar dos adolescentes.", resposta: "Falso", explicacao: "O foco está na formação cidadã e na pedagogia da responsabilização." },
-{ pergunta: "O Serviço Especializado em Abordagem Social (SEAS do SUAS) é a mesma coisa que a Superintendência do Sistema Estadual de Atendimento Socioeducativo.", resposta: "Falso", explicacao: "São estruturas diferentes com funções distintas." },
-{ pergunta: "O Estatuto da Criança e do Adolescente é a lei nº 8.069/1990.", resposta: "Verdadeiro", explicacao: "Essa é a lei que define os direitos das crianças e adolescentes no Brasil." },
-{ pergunta: "A literatura carcerária não tem função pedagógica ou social transformadora.", resposta: "Falso", explicacao: "Ela promove educação social, expressão cultural e dignidade." },
-{ pergunta: "A socioeducação busca a reintegração social por meio de ações educativas, culturais e comunitárias.", resposta: "Verdadeiro", explicacao: "O objetivo é construção de novos projetos de vida e responsabilização educativa." },
-{ pergunta: "A SEAS foi criada pela Lei Estadual nº 16.040/2016 no Ceará.", resposta: "Verdadeiro", explicacao: "Essa lei institui a superintendência no estado do Ceará." },
-{ pergunta: "O SINASE é a Lei nº 12.594/2012, que regula o sistema nacional de atendimento socioeducativo.", resposta: "Verdadeiro", explicacao: "Ele detalha a execução das medidas em âmbito nacional." },
-{ pergunta: "A educação não formal é irrelevante na socioeducação.", resposta: "Falso", explicacao: "A educação não formal é fundamental para a formação cidadã e socioeducação." },
-{ pergunta: "A SEAS não deve coordenar oficinas e atividades culturais dentro das unidades.", resposta: "Falso", explicacao: "Atividades culturais e educativas fazem parte do atendimento integral." },
-{ pergunta: "Direitos humanos são a base da estrutura normativa da socioeducação.", resposta: "Verdadeiro", explicacao: "Eles orientam limites e objetivos das medidas socioeducativas." },
-{ pergunta: "A SEAS articula ações pedagógicas apenas em nível federal.", resposta: "Falso", explicacao: "A SEAS atua em nível estadual e articula políticas locais também." },
-{ pergunta: "A prioridade absoluta de crianças e adolescentes implica em atenção especial do Estado.", resposta: "Verdadeiro", explicacao: "É um princípio constitucional que orienta políticas públicas." },
-{ pergunta: "O adolescente privado de liberdade pode ser impedido de estudar formalmente durante a internação.", resposta: "Falso", explicacao: "ECA e SINASE garantem o direito à educação mesmo em internação." },
-{ pergunta: "A pedagogia da responsabilização busca a formação do adolescente para a vida em sociedade.", resposta: "Verdadeiro", explicacao: "O objetivo é reintegração social, não punição." },
-{ pergunta: "A atuação da SEAS não envolve supervisão das unidades socioeducativas.", resposta: "Falso", explicacao: "Supervisão e acompanhamento das unidades é parte das funções da SEAS." },
-{ pergunta: "A Constituição Federal garante prioridade absoluta às crianças e adolescentes.", resposta: "Verdadeiro", explicacao: "Art. 227 da CF garante prioridade absoluta." },
-{ pergunta: "A socioeducação é uma política pública voltada apenas à punição.", resposta: "Falso", explicacao: "Ela tem caráter pedagógico e de garantia de direitos." },
-{ pergunta: "O Estatuto da Criança e do Adolescente (ECA) assegura direitos a todos os adolescentes, inclusive em conflito com a lei.", resposta: "Verdadeiro", explicacao: "O ECA protege todos os adolescentes, mesmo em medidas socioeducativas." },
-{ pergunta: "A Lei do SINASE detalha a execução das medidas socioeducativas em âmbito nacional.", resposta: "Verdadeiro", explicacao: "Lei nº 12.594/2012 regula a execução das medidas socioeducativas." },
-{ pergunta: "A SEAS do Ceará foi criada pela Lei Estadual nº 16.040/2016.", resposta: "Verdadeiro", explicacao: "Essa lei instituiu a Superintendência do Sistema Estadual de Atendimento Socioeducativo." },
-{ pergunta: "O SINASE substitui completamente o ECA.", resposta: "Falso", explicacao: "O SINASE detalha a execução, mas o ECA continua definindo direitos fundamentais." },
-{ pergunta: "A socioeducação reconhece a adolescência como fase específica do desenvolvimento humano.", resposta: "Verdadeiro", explicacao: "Esse reconhecimento fundamenta a proteção integral." },
-{ pergunta: "A responsabilização de adolescentes pode ocorrer sem violar direitos humanos.", resposta: "Verdadeiro", explicacao: "Responsabilização não é punição; deve respeitar direitos." },
-{ pergunta: "A SEAS coordena unidades de internação e semiliberdade no Ceará.", resposta: "Verdadeiro", explicacao: "Essa é uma das funções da SEAS." },
-{ pergunta: "A articulação intersetorial não é necessária na política socioeducativa.", resposta: "Falso", explicacao: "A integração com saúde, educação e assistência social é essencial." },
-{ pergunta: "A socioeducação busca a reintegração social do adolescente.", resposta: "Verdadeiro", explicacao: "O foco é a formação cidadã e reintegração." },
-{ pergunta: "O educador social e o socioeducador exercem exatamente as mesmas funções.", resposta: "Falso", explicacao: "O socioeducador atua no sistema socioeducativo; o educador social tem atuação mais ampla." },
-{ pergunta: "O ECA garante o direito à educação para adolescentes em internação.", resposta: "Verdadeiro", explicacao: "Educação é parte do atendimento integral." },
-{ pergunta: "Medidas socioeducativas devem respeitar contraditório e ampla defesa.", resposta: "Verdadeiro", explicacao: "Esses princípios estão no ECA." },
-{ pergunta: "A SEAS é um serviço do SUAS voltado para população em situação de rua.", resposta: "Falso", explicacao: "A SEAS é específica para socioeducação; SUAS cuida da assistência social." },
-{ pergunta: "A literatura carcerária contribui para a socioeducação.", resposta: "Verdadeiro", explicacao: "A escrita e leitura dentro do sistema prisional têm função pedagógica." },
-{ pergunta: "A Lei do SINASE não se aplica às medidas de semiliberdade.", resposta: "Falso", explicacao: "O SINASE regula todas as medidas socioeducativas, inclusive semiliberdade." },
-{ pergunta: "A socioeducação não precisa se preocupar com direitos humanos.", resposta: "Falso", explicacao: "Os direitos humanos orientam toda a execução das medidas." },
-{ pergunta: "A SEAS também forma profissionais que atuam no sistema socioeducativo.", resposta: "Verdadeiro", explicacao: "A capacitação de profissionais é uma de suas funções." },
-{ pergunta: "Um adolescente em internação pode ficar sem educação formal.", resposta: "Falso", explicacao: "O ECA e o SINASE garantem educação mesmo em unidades de internação." },
-{ pergunta: "A socioeducação pode ser realizada em oficinas de arte.", resposta: "Verdadeiro", explicacao: "Atividades culturais fazem parte da reintegração social." },
-{ pergunta: "O SINASE organiza o atendimento socioeducativo em dimensões técnica, administrativa e pedagógica.", resposta: "Verdadeiro", explicacao: "Essas dimensões estruturam a política." },
-{ pergunta: "A SEAS atua isoladamente, sem integrar políticas de saúde, educação e assistência.", resposta: "Falso", explicacao: "A articulação intersetorial é obrigatória." },
-{ pergunta: "A prioridade absoluta das crianças é um princípio constitucional.", resposta: "Verdadeiro", explicacao: "Art. 227 da CF garante prioridade absoluta." },
-{ pergunta: "A responsabilização socioeducativa se confunde com punição.", resposta: "Falso", explicacao: "O foco é pedagógico e na reintegração." },
-{ pergunta: "O socioeducador atua principalmente em medidas de internação e semiliberdade.", resposta: "Verdadeiro", explicacao: "O trabalho é no sistema socioeducativo." },
-{ pergunta: "A socioeducação não contempla atividades de educação não formal.", resposta: "Falso", explicacao: "A educação não formal é parte essencial do processo." },
-{ pergunta: "A SEAS é responsável pela articulação com outras políticas públicas.", resposta: "Verdadeiro", explicacao: "Integração é parte de sua função institucional." },
-{ pergunta: "O SINASE detalha como executar medidas socioeducativas, sem substituir o ECA.", resposta: "Verdadeiro", explicacao: "O ECA define direitos; o SINASE operacionaliza." },
-{ pergunta: "Medidas socioeducativas podem ser aplicadas sem observar princípios de dignidade humana.", resposta: "Falso", explicacao: "Princípios de dignidade e direitos humanos são obrigatórios." },
-{ pergunta: "A Constituição Federal de 1988 prevê proteção integral à criança e ao adolescente.", resposta: "Verdadeiro", explicacao: "Art. 227 estabelece proteção integral." },
-{ pergunta: "A socioeducação não busca alternativas formativas e projetos de vida.", resposta: "Falso", explicacao: "O objetivo é construção de novos projetos de vida e reintegração." },
-{ pergunta: "O educador social atua em ONGs, projetos comunitários e espaços de educação não formal.", resposta: "Verdadeiro", explicacao: "O campo de atuação é mais amplo que o do socioeducador." },
-{ pergunta: "O ECA garante prioridade absoluta apenas para crianças, não para adolescentes.", resposta: "Falso", explicacao: "A prioridade absoluta é para crianças e adolescentes." },
-{ pergunta: "A SEAS é um órgão específico do Estado do Ceará.", resposta: "Verdadeiro", explicacao: "Ela organiza o sistema socioeducativo estadual." },
-{ pergunta: "O SINASE substitui todas as normas do ECA.", resposta: "Falso", explicacao: "O SINASE complementa, não substitui." },
-{ pergunta: "A socioeducação pode usar atividades culturais e artísticas como ferramentas pedagógicas.", resposta: "Verdadeiro", explicacao: "Arte-educação é uma prática recomendada." },
-{ pergunta: "A SEAS coordena unidades de internação e semiliberdade, mas não forma profissionais.", resposta: "Falso", explicacao: "Formação de profissionais é função da SEAS." },
-{ pergunta: "A responsabilização socioeducativa deve respeitar contraditório e ampla defesa.", resposta: "Verdadeiro", explicacao: "Esses princípios estão garantidos pelo ECA." },
-{ pergunta: "O atendimento socioeducativo tem caráter punitivo e não pedagógico.", resposta: "Falso", explicacao: "O foco é pedagógico, com reintegração social." },
-{ pergunta: "A Lei Estadual nº 16.040/2016 criou a SEAS no Ceará.", resposta: "Verdadeiro", explicacao: "Essa lei instituiu a Superintendência." },
-{ pergunta: "A socioeducação visa à reintegração do adolescente à sociedade.", resposta: "Verdadeiro", explicacao: "O objetivo principal é reintegração e formação cidadã." },
-{ pergunta: "O SINASE não se aplica a medidas de internação.", resposta: "Falso", explicacao: "Ele regula todas as medidas socioeducativas." },
-{ pergunta: "O socioeducador trabalha apenas em escolas regulares.", resposta: "Falso", explicacao: "Ele atua nas unidades de internação e semiliberdade." },
-{ pergunta: "A socioeducação promove participação cidadã e desenvolvimento social.", resposta: "Verdadeiro", explicacao: "O objetivo é formação cidadã e crítica." },
-{ pergunta: "Um adolescente não precisa de educação formal durante a internação.", resposta: "Falso", explicacao: "O ECA e SINASE garantem o direito à educação." },
-{ pergunta: "A literatura carcerária tem função pedagógica e social.", resposta: "Verdadeiro", explicacao: "Escrita e leitura dentro das unidades contribuem para a socioeducação." },
-{ pergunta: "A SEAS atua isoladamente sem integrar outras políticas públicas.", resposta: "Falso", explicacao: "A articulação intersetorial é obrigatória." },
-{ pergunta: "A Constituição Federal garante prioridade absoluta a crianças e adolescentes.", resposta: "Verdadeiro", explicacao: "Art. 227 da CF estabelece esse princípio." },
-{ pergunta: "A socioeducação pode ocorrer sem respeitar direitos humanos.", resposta: "Falso", explicacao: "Direitos humanos são base da socioeducação." }
-]; // 100 perguntas completas
 
-// ====== VARIÁVEIS DO JOGO ======
+{ pergunta: "O Sistema Único de Saúde (SUS) é o principal responsável pelo cuidado à saúde de adolescentes no Brasil.", resposta: "CERTO", explicacao: "CERTO: O SUS garante atenção integral à saúde de adolescentes, incluindo ações preventivas, curativas e de promoção." },
+{ pergunta: "A faixa etária adotada pelo SUS para definir adolescentes vai dos 10 aos 19 anos, conforme convenção da OMS.", resposta: "CERTO", explicacao: "CERTO: O SUS adota a faixa etária de 10 a 19 anos, conforme recomendação da OMS." },
+{ pergunta: "A atenção integral à saúde de adolescentes deve considerar aspectos biológicos, psicológicos, sociais e culturais.", resposta: "CERTO", explicacao: "CERTO: Integralidade envolve abordagem multidimensional do desenvolvimento do adolescente." },
+{ pergunta: "O princípio da autonomia do paciente não se aplica aos adolescentes, pois todos os atos devem ser decididos pelos responsáveis legais.", resposta: "ERRADO", explicacao: "ERRADO: A preservação da autonomia é um princípio do SUS; adolescentes têm direito à defesa da integridade física e moral." },
+{ pergunta: "A intersetorialidade é dispensável na atenção à saúde de adolescentes quando já existem serviços de saúde disponíveis.", resposta: "ERRADO", explicacao: "ERRADO: A intersetorialidade é fundamental para atender múltiplas necessidades, envolvendo educação, assistência social e comunidade." },
+{ pergunta: "O ECA e o SUS enfatizam o protagonismo juvenil como parte das estratégias de atenção à saúde.", resposta: "CERTO", explicacao: "CERTO: O protagonismo juvenil é incentivado para que adolescentes participem das decisões sobre sua saúde." },
+{ pergunta: "Diretrizes Nacionais para a Atenção Integral à Saúde de Adolescentes e Jovens incluem o eixo de ética e cidadania para orientar políticas públicas.", resposta: "CERTO", explicacao: "CERTO: Ética e cidadania são eixos estruturantes para orientar o cuidado integral à saúde." },
+{ pergunta: "O acesso dos adolescentes à informação sobre sua saúde não é um direito protegido pelo SUS.", resposta: "ERRADO", explicacao: "ERRADO: O direito à informação é garantido, promovendo autonomia e consciência sobre sua saúde." },
+{ pergunta: "A atenção à saúde do adolescente deve ser exclusivamente em unidades de saúde especializadas, sem integração com escolas ou serviços comunitários.", resposta: "ERRADO", explicacao: "ERRADO: A atenção integral requer articulação com escolas, comunidades e outros serviços para ampliar acesso e cuidado." },
+{ pergunta: "As Diretrizes Nacionais para atenção à saúde de adolescentes destacam a importância do projeto de vida para promover saúde integral.", resposta: "CERTO", explicacao: "CERTO: Projetos de vida auxiliam no desenvolvimento saudável, prevenindo riscos e fortalecendo escolhas conscientes." },
+{ pergunta: "O acolhimento e escuta qualificada no atendimento a adolescentes visam apenas registrar dados clínicos.", resposta: "ERRADO", explicacao: "ERRADO: Acolhimento e escuta envolvem compreensão das experiências, emoções e contextos sociais do adolescente." },
+{ pergunta: "O SUS organiza seus serviços com base nos princípios de universalidade, integralidade, equidade, descentralização e participação social.", resposta: "CERTO", explicacao: "CERTO: Estes princípios estão previstos na Lei 8.080/90 e fundamentam a atenção integral à saúde." },
+{ pergunta: "A proteção integral prevista no ECA exige atenção a aspectos físicos, emocionais, sociais e culturais do adolescente.", resposta: "CERTO", explicacao: "CERTO: O cuidado integral considera todos os aspectos do desenvolvimento do adolescente." },
+{ pergunta: "A atenção integral à saúde deve incluir apenas ações preventivas, excluindo a recuperação em caso de doença.", resposta: "ERRADO", explicacao: "ERRADO: Integralidade envolve promoção, prevenção, proteção e recuperação da saúde." },
+{ pergunta: "As Diretrizes Nacionais de atenção à saúde de adolescentes incluem o eixo de equidade de gêneros para orientar ações de saúde.", resposta: "CERTO", explicacao: "CERTO: Equidade de gênero busca reduzir desigualdades e atender necessidades específicas de meninos e meninas." },
+{ pergunta: "A família é co-responsável pela garantia da saúde integral do adolescente, juntamente com o Estado e a sociedade.", resposta: "CERTO", explicacao: "CERTO: Art. 4º do ECA define a responsabilidade compartilhada pela proteção e saúde do adolescente." },
+{ pergunta: "A atenção à saúde de adolescentes deve respeitar diferenças raciais e étnicas, conforme os princípios do SUS e Diretrizes Nacionais.", resposta: "CERTO", explicacao: "CERTO: Igualdade racial e étnica é eixo estruturante e promove justiça no acesso à saúde." },
+{ pergunta: "O SUS não prevê a utilização de dados epidemiológicos para estabelecer prioridades na atenção à saúde de adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: O uso de epidemiologia é um princípio do SUS para alocação de recursos e definição de políticas." },
+{ pergunta: "A confidencialidade no atendimento a adolescentes é dispensável quando se trata de adolescentes com idade superior a 16 anos.", resposta: "ERRADO", explicacao: "ERRADO: Confidencialidade é princípio obrigatório, respeitado independentemente da idade, salvo exceções legais." },
+{ pergunta: "O princípio da equidade no SUS visa oferecer serviços diferenciados conforme necessidades específicas de adolescentes.", resposta: "CERTO", explicacao: "CERTO: Equidade garante atenção proporcional às necessidades individuais e contextuais de cada adolescente." },
+{ pergunta: "A promoção da cultura de paz é considerada eixo estruturante para ações de saúde de adolescentes segundo as Diretrizes Nacionais.", resposta: "CERTO", explicacao: "CERTO: Cultura de paz é eixo estruturante que orienta políticas e programas de promoção da saúde." },
+{ pergunta: "A atenção integral à saúde inclui ações individuais e coletivas, englobando desde consultas clínicas até programas educativos comunitários.", resposta: "CERTO", explicacao: "CERTO: Integralidade envolve todas as dimensões de cuidado, incluindo ações preventivas e coletivas." },
+{ pergunta: "O ECA estabelece que a proteção integral se aplica apenas a adolescentes em situação de risco ou vulnerabilidade social.", resposta: "ERRADO", explicacao: "ERRADO: A proteção integral se aplica a todos os adolescentes, independentemente da situação social." },
+{ pergunta: "O direito à vida, saúde, educação, liberdade, dignidade e convivência familiar é assegurado pelo ECA e pela Constituição Federal.", resposta: "CERTO", explicacao: "CERTO: Art. 227 da CF/88 e o ECA garantem esses direitos de forma prioritária." },
+{ pergunta: "As ações de atenção à saúde de adolescentes devem considerar determinantes sociais, como moradia, alimentação, educação e acesso a bens e serviços.", resposta: "CERTO", explicacao: "CERTO: Determinantes sociais influenciam diretamente a saúde e o desenvolvimento do adolescente." },
+{ pergunta: "A legislação brasileira não prevê diretrizes específicas para atenção à saúde de adolescentes e jovens.", resposta: "ERRADO", explicacao: "ERRADO: As Diretrizes Nacionais (2010) orientam ações de atenção integral à saúde de adolescentes e jovens." },
+
+// continuando
+
+{ pergunta: "O ECA estabelece que a adolescência compreende a faixa etária entre 10 e 19 anos para fins legais no Brasil.", resposta: "ERRADO", explicacao: "ERRADO: O ECA define legalmente a adolescência entre 12 e 18 anos; a faixa 10-19 anos é referência da OMS adotada pelo SUS." },
+{ pergunta: "A Constituição Federal de 1988, no artigo 227, determina a prioridade absoluta na garantia de direitos à criança e ao adolescente, incluindo saúde, educação, alimentação e convivência familiar e comunitária.", resposta: "CERTO", explicacao: "CERTO: Art. 227 da CF/88 consagra a prioridade absoluta na proteção de crianças e adolescentes." },
+{ pergunta: "A integralidade da assistência à saúde no SUS significa oferecer apenas atendimento curativo quando há agravos de saúde identificados em adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: Integralidade abrange ações preventivas, curativas, de promoção e de proteção, considerando múltiplos aspectos da vida do adolescente." },
+{ pergunta: "A equidade no SUS demanda que as políticas de saúde para adolescentes considerem diferenças de gênero, situação social, raça e etnia para promover justiça no acesso aos serviços.", resposta: "CERTO", explicacao: "CERTO: Equidade visa reduzir desigualdades e oferecer atenção adequada às necessidades específicas." },
+{ pergunta: "O ECA deixa de prever a necessidade de articulação intersetorial nas políticas públicas voltadas à saúde de crianças e adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: O ECA exige ações articuladas entre família, sociedade e Estado, implicando abordagem intersetorial." },
+{ pergunta: "O princípio da universalidade no SUS garante que todos os adolescentes tenham acesso aos serviços de saúde sem discriminação ou privilégio de qualquer espécie.", resposta: "CERTO", explicacao: "CERTO: Universalidade é um dos princípios fundamentais do SUS, assegurando acesso indistinto à saúde." },
+{ pergunta: "Diretrizes Nacionais para a Atenção Integral à Saúde de Adolescentes e Jovens estabelecem a cultura de paz como eixo estruturante para promoção da saúde dessa população.", resposta: "CERTO", explicacao: "CERTO: Cultura de paz é um dos eixos estruturantes das Diretrizes Nacionais, conforme o Ministério da Saúde." },
+{ pergunta: "No atendimento à saúde do adolescente, a confidencialidade não é obrigatória e pode ser dispensada sempre que o responsável legal solicitar acesso às informações.", resposta: "ERRADO", explicacao: "ERRADO: A confidencialidade é princípio fundamental na atenção à saúde, sendo respeitada mesmo em situações com responsáveis legais, salvo exceções previstas em lei." },
+{ pergunta: "A atenção integral à saúde de adolescentes envolve ações de promoção, proteção, prevenção e recuperação, bem como atividades coletivas e individuais.", resposta: "CERTO", explicacao: "CERTO: Integralidade envolve todo o ciclo de cuidado em saúde." },
+{ pergunta: "O acolhimento e a escuta qualificada não são considerados elementos essenciais para a atenção integral à saúde do adolescente.", resposta: "ERRADO", explicacao: "ERRADO: Acolhimento e escuta ativa são essenciais para garantir cuidado humanizado e efetivo ao adolescente." },
+{ pergunta: "As Diretrizes Nacionais buscam sensibilizar gestores e profissionais do SUS para integrar estratégias intersetoriais nas ações voltadas à saúde de adolescentes e jovens.", resposta: "CERTO", explicacao: "CERTO: Diretrizes visam articulação intersetorial entre saúde, educação, assistência social e outros setores." },
+{ pergunta: "Para fins legais no Brasil, o ECA adota o critério cronológico ao definir adolescência, não considerando as condições biológicas, sociais ou culturais do indivíduo.", resposta: "CERTO", explicacao: "CERTO: Para políticas públicas, a legislação brasileira usa critério cronológico, embora sinais biológicos variem entre indivíduos." },
+{ pergunta: "O ECA garante a prioridade absoluta no atendimento de saúde apenas para crianças, não abrangendo adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: A prioridade absoluta no atendimento em saúde se aplica tanto a crianças quanto a adolescentes, conforme o ECA e a CF." },
+{ pergunta: "O estabelecimento de parcerias com escolas e serviços comunitários é recomendado para ampliar o acesso dos adolescentes aos serviços de saúde.", resposta: "CERTO", explicacao: "CERTO: Estratégias de intersetorialidade incluem parcerias com educação e comunidades para ampliar acesso à saúde." },
+{ pergunta: "O direito à informação sobre sua saúde é garantido ao adolescente pelo SUS, conforme os princípios do sistema.", resposta: "CERTO", explicacao: "CERTO: Direito à informação é previsto nos princípios do SUS (Lei 8.080/90)." },
+{ pergunta: "A atuação dos profissionais de saúde com adolescentes deve excluir ações de promoção da saúde e focar apenas em tratamentos específicos de doenças crônicas.", resposta: "ERRADO", explicacao: "ERRADO: A atenção integral inclui promoção da saúde e ações preventivas, não apenas tratamento de doenças." },
+{ pergunta: "A promoção da igualdade racial e étnica é um dos eixos estruturantes das Diretrizes Nacionais para a Atenção Integral à Saúde de Adolescentes e Jovens.", resposta: "CERTO", explicacao: "CERTO: Igualdade racial e étnica é eixo estruturante das diretrizes do Ministério da Saúde." },
+{ pergunta: "A legislação brasileira não considera a adolescência como fase de intensa reorganização cerebral e social.", resposta: "ERRADO", explicacao: "ERRADO: Estudos e políticas sociais reconhecem adolescência como fase de intensas transformações fisiológicas e psicossociais." },
+{ pergunta: "Os princípios do SUS incluem descentralização político‑administrativa com ênfase na direção única em cada esfera de governo.", resposta: "CERTO", explicacao: "CERTO: O SUS organiza serviços com direção única em cada esfera governamental, conforme a Lei 8.080/90." },
+{ pergunta: "A integralidade da assistência à saúde exclui a necessidade de envolver ações coletivas de promoção de saúde.", resposta: "ERRADO", explicacao: "ERRADO: Integralidade envolve ações individuais e coletivas, conforme os princípios do SUS." },
+{ pergunta: "O ECA reconhece a condição peculiar de desenvolvimento do adolescente, garantindo sua proteção integral e prioridade nas políticas de saúde e educação.", resposta: "CERTO", explicacao: "CERTO: O ECA reconhece proteção integral e prioridade nas políticas públicas voltadas a adolescentes." },
+{ pergunta: "A escuta qualificada corresponde apenas à coleta de dados clínicos e não se relaciona com o protagonismo juvenil.", resposta: "ERRADO", explicacao: "ERRADO: Escuta qualificada também envolve valorização de experiências e participação ativa do adolescente." },
+
+// CONTINUANDO
+
+{ pergunta: "O ECA define a adolescência como a faixa etária entre 12 e 18 anos, reconhecendo a condição peculiar de desenvolvimento dessa população.", resposta: "CERTO", explicacao: "CERTO: O ECA, art. 6º, estabelece que adolescentes têm entre 12 e 18 anos, com desenvolvimento físico, emocional, social e cognitivo próprio." },
+{ pergunta: "O Estatuto da Criança e do Adolescente prioriza a proteção de direitos, mas não garante prioridade no atendimento em serviços de saúde.", resposta: "ERRADO", explicacao: "ERRADO: O ECA assegura prioridade absoluta, inclusive no atendimento em saúde e na destinação de recursos públicos para políticas voltadas a crianças e adolescentes." },
+{ pergunta: "A Constituição Federal de 1988, em seu artigo 227, estabelece que é dever da família, sociedade e Estado assegurar direitos a crianças e adolescentes, incluindo saúde, educação e convivência familiar.", resposta: "CERTO", explicacao: "CERTO: CF/88, art. 227, institui deveres de proteção e prioridade absoluta aos direitos de crianças e adolescentes." },
+{ pergunta: "A adolescência deve ser compreendida apenas como uma delimitação cronológica, sem considerar aspectos socioculturais e individuais.", resposta: "ERRADO", explicacao: "ERRADO: A adolescência é uma fase de transição marcada por intensas transformações físicas, emocionais, cognitivas e sociais, influenciadas pelo contexto familiar, social e cultural." },
+{ pergunta: "O reconhecimento da adolescência como sujeito de direitos representa uma mudança de paradigma em relação ao modelo assistencialista anterior.", resposta: "CERTO", explicacao: "CERTO: O paradigma moderno reconhece crianças e adolescentes como sujeitos de direitos, rompendo com modelos anteriores predominantemente correcionais ou assistencialistas." },
+{ pergunta: "O SUS é o principal responsável pelo cuidado à saúde de adolescentes no Brasil, garantindo atenção integral, equidade e universalidade.", resposta: "CERTO", explicacao: "CERTO: O SUS, Lei 8.080/90, é responsável pela saúde integral dos adolescentes, observando princípios como universalidade, integralidade e equidade." },
+{ pergunta: "A integralidade da assistência à saúde inclui apenas ações curativas, sem considerar promoção e prevenção.", resposta: "ERRADO", explicacao: "ERRADO: Integralidade compreende ações preventivas, promocionais, de proteção e recuperação da saúde, individuais e coletivas." },
+{ pergunta: "A atenção integral à saúde de adolescentes deve considerar dimensões biológicas, emocionais, sociais e culturais.", resposta: "CERTO", explicacao: "CERTO: A multidimensionalidade é essencial para o cuidado integral do adolescente, considerando o contexto de vida e desenvolvimento." },
+{ pergunta: "O princípio da equidade no SUS significa oferecer atenção igual a todos, sem considerar diferenças de vulnerabilidade social, gênero ou raça.", resposta: "ERRADO", explicacao: "ERRADO: Equidade significa reconhecer desigualdades e oferecer atenção diferenciada para garantir justiça social e acesso efetivo." },
+{ pergunta: "A identificação de maus-tratos, negligência ou violência sexual é um componente essencial da atenção integral à saúde do adolescente.", resposta: "CERTO", explicacao: "CERTO: A proteção integral exige que profissionais estejam atentos a situações de risco e adotem medidas adequadas de cuidado." },
+{ pergunta: "O acesso aos serviços de saúde deve ser facilitado por estratégias intersetoriais, como parcerias com escolas e instituições comunitárias.", resposta: "CERTO", explicacao: "CERTO: Intersetorialidade amplia acesso e favorece cuidado integral, articulando saúde, educação e assistência social." },
+{ pergunta: "O protagonismo juvenil é desnecessário para a efetividade do cuidado integral à saúde de adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: Garantir protagonismo fortalece autonomia, responsabilidade e participação do adolescente nas decisões sobre sua saúde." },
+{ pergunta: "Sigilo, acolhimento e escuta qualificada são elementos fundamentais para o cuidado integral à saúde de adolescentes.", resposta: "CERTO", explicacao: "CERTO: Esses elementos promovem confiança e favorecem o desenvolvimento saudável do adolescente." },
+{ pergunta: "A atenção integral à saúde de adolescentes se limita aos atendimentos em serviços públicos de saúde.", resposta: "ERRADO", explicacao: "ERRADO: Integralidade envolve todos os serviços e políticas que interagem com adolescentes, evitando abordagens fragmentadas." },
+{ pergunta: "As Diretrizes Nacionais de 2010 para a Atenção Integral à Saúde de Adolescentes e Jovens orientam estratégias de promoção, proteção e recuperação da saúde.", resposta: "CERTO", explicacao: "CERTO: Diretrizes oferecem orientações para gestores e profissionais visando cuidado integral, intersetorial e com foco nos direitos dos adolescentes." },
+{ pergunta: "Participação juvenil, equidade de gênero, direitos sexuais e reprodutivos, projeto de vida e cultura de paz são eixos estruturantes das Diretrizes Nacionais.", resposta: "CERTO", explicacao: "CERTO: Esses eixos fundamentam o planejamento e execução das ações de atenção à saúde de adolescentes." },
+{ pergunta: "Ética, cidadania e igualdade racial e étnica não são considerados eixos estruturantes nas Diretrizes Nacionais de atenção à saúde de adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: Esses são eixos estruturantes fundamentais que devem nortear políticas e ações voltadas à saúde integral." },
+{ pergunta: "A caderneta de saúde do adolescente é um recurso importante para acompanhamento do crescimento, desenvolvimento e atividades preventivas.", resposta: "CERTO", explicacao: "CERTO: A caderneta possibilita registro contínuo de informações, favorecendo intervenções oportunas e monitoramento do desenvolvimento." },
+{ pergunta: "O SUS promove a participação da comunidade na organização e avaliação das ações de saúde para adolescentes.", resposta: "CERTO", explicacao: "CERTO: Participação comunitária é prevista pelo SUS, garantindo transparência, controle social e adequação das ações às necessidades locais." },
+{ pergunta: "A descentralização político-administrativa do SUS visa fortalecer a atuação exclusiva da União na saúde de adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: A descentralização visa transferir responsabilidades aos municípios, mantendo hierarquização e integração em níveis regional e nacional." },
+{ pergunta: "A epidemiologia deve ser utilizada para definir prioridades, orientar recursos e programações de saúde para adolescentes.", resposta: "CERTO", explicacao: "CERTO: Uso da epidemiologia permite planejamento baseado em evidências, garantindo eficiência e efetividade das políticas públicas." },
+{ pergunta: "O direito à informação sobre saúde é garantido a adolescentes, devendo os profissionais fornecer esclarecimentos adequados sobre seu cuidado.", resposta: "CERTO", explicacao: "CERTO: Direito à informação promove autonomia, proteção e empoderamento do adolescente." },
+{ pergunta: "A integralidade da atenção à saúde não exige articulação com políticas de educação, assistência social ou proteção da infância e adolescência.", resposta: "ERRADO", explicacao: "ERRADO: Integralidade requer articulação intersetorial, pois fatores sociais, econômicos e culturais impactam a saúde do adolescente." },
+{ pergunta: "A saúde integral do adolescente abrange prevenção, promoção, proteção, recuperação e reabilitação, em consonância com o SUS e o ECA.", resposta: "CERTO", explicacao: "CERTO: A abordagem integral é ampla e multidimensional, contemplando todas as etapas do cuidado à saúde." },
+{ pergunta: "O acompanhamento psicológico e atenção a vítimas de violência doméstica está previsto nas diretrizes do SUS e na Lei nº 12.845/2013.", resposta: "CERTO", explicacao: "CERTO: O SUS deve organizar atendimento especializado a mulheres e adolescentes vítimas de violência, garantindo suporte psicológico e procedimentos reparadores." },
+{ pergunta: "As políticas públicas de saúde de adolescentes devem desconsiderar diferenças de gênero, raça, etnia ou orientação sexual.", resposta: "ERRADO", explicacao: "ERRADO: Diretrizes nacionais preveem atenção diferenciada e equitativa considerando diversidade social, cultural e biológica." },
+{ pergunta: "O cuidado integral deve ser pautado pela priorização da vulnerabilidade, atenção às necessidades individuais e contexto socioeconômico.", resposta: "CERTO", explicacao: "CERTO: Atendimento integral respeita características individuais e desigualdades sociais que impactam saúde e desenvolvimento." },
+{ pergunta: "A adoção do paradigma de proteção integral substitui o modelo assistencialista e correcional no cuidado a adolescentes.", resposta: "CERTO", explicacao: "CERTO: Proteção integral reconhece direitos e garante cuidado humanizado, rompendo com modelos punitivos e excludentes." },
+{ pergunta: "O protagonismo juvenil e a participação ativa nos serviços de saúde são recomendados pelas Diretrizes Nacionais.", resposta: "CERTO", explicacao: "CERTO: Participação efetiva fortalece autonomia, responsabilidade e engajamento dos adolescentes em seu próprio cuidado." },
+{ pergunta: "O cuidado integral à saúde não precisa considerar a diversidade cultural e social em que os adolescentes estão inseridos.", resposta: "ERRADO", explicacao: "ERRADO: A diversidade social, cultural e econômica impacta diretamente o desenvolvimento e deve ser considerada." },
+{ pergunta: "As Diretrizes Nacionais visam orientar, sensibilizar e mobilizar gestores e profissionais para a atenção integral à saúde de adolescentes.", resposta: "CERTO", explicacao: "CERTO: Diretrizes fortalecem competências e planejamento de ações intersetoriais e interdisciplinares." },
+{ pergunta: "O direito à saúde do adolescente abrange apenas aspectos físicos, desconsiderando desenvolvimento emocional e social.", resposta: "ERRADO", explicacao: "ERRADO: Saúde integral inclui dimensões física, emocional, social e cultural." },
+{ pergunta: "A proteção integral à saúde de adolescentes requer articulação entre políticas públicas, serviços de saúde e comunidade.", resposta: "CERTO", explicacao: "CERTO: Intersetorialidade e integração são fundamentais para efetividade do cuidado integral." },
+{ pergunta: "O ECA e as Diretrizes Nacionais buscam romper com abordagens fragmentadas, promovendo cuidado humanizado e integral.", resposta: "CERTO", explicacao: "CERTO: A legislação e diretrizes promovem atenção integral, multidimensional e respeitosa aos direitos do adolescente." },
+{ pergunta: "A confidencialidade deve ser respeitada em todos os atendimentos a adolescentes, exceto quando houver risco legalmente previsto.", resposta: "CERTO", explicacao: "CERTO: Sigilo é regra, podendo ser quebrado apenas em situações de risco legal." },
+{ pergunta: "A escuta qualificada e o acolhimento são ferramentas para garantir cuidado humanizado e segurança no atendimento.", resposta: "CERTO", explicacao: "CERTO: Escuta e acolhimento promovem confiança e participação ativa do adolescente." },
+{ pergunta: "A caderneta de saúde do adolescente deve ser utilizada apenas por profissionais de saúde, sem participação do adolescente.", resposta: "ERRADO", explicacao: "ERRADO: A caderneta é instrumento de acompanhamento conjunto, favorecendo participação e protagonismo do adolescente." },
+{ pergunta: "A atenção integral à saúde dos adolescentes deve ser baseada em evidências científicas e indicadores epidemiológicos.", resposta: "CERTO", explicacao: "CERTO: Planejamento e priorização de ações devem considerar dados epidemiológicos e boas práticas." },
+{ pergunta: "A atenção integral à saúde deve ser adaptada às especificidades de gênero, idade, raça e condição social.", resposta: "CERTO", explicacao: "CERTO: Diretrizes recomendam abordagem personalizada e equitativa, respeitando diversidade do público adolescente." },
+{ pergunta: "A promoção da cultura de paz e do respeito aos direitos humanos não é considerada na atenção integral à saúde.", resposta: "ERRADO", explicacao: "ERRADO: Cultura de paz, ética e cidadania são eixos estruturantes da atenção integral à saúde de adolescentes." },
+{ pergunta: "O planejamento de ações de saúde para adolescentes deve incluir estratégias de prevenção, promoção, proteção e recuperação, integradas com outras políticas públicas.", resposta: "CERTO", explicacao: "CERTO: Abordagem intersetorial garante atenção completa e efetiva às necessidades do adolescente." },
+{ pergunta: "A integralidade da saúde do adolescente inclui tanto atendimento individual quanto ações coletivas de promoção e prevenção.", resposta: "CERTO", explicacao: "CERTO: Integralidade contempla ações contínuas, articuladas e em múltiplos níveis de complexidade do sistema." },
+{ pergunta: "As Diretrizes Nacionais reforçam que políticas de saúde de adolescentes devem ser universais, porém diferenciadas conforme necessidades específicas.", resposta: "CERTO", explicacao: "CERTO: Universalidade e equidade permitem acesso igualitário e atenção personalizada às vulnerabilidades e contextos." },
+
+// CONTINUANDO 
+
+{ pergunta: "A adolescência, segundo o ECA, compreende a faixa etária entre 12 e 18 anos.", resposta: "CERTO", explicacao: "CERTO: O ECA define a adolescência como 12 a 18 anos, reconhecendo a condição peculiar de desenvolvimento." },
+{ pergunta: "O ECA considera crianças e adolescentes sujeitos de direitos, mas não garante prioridade no atendimento em saúde.", resposta: "ERRADO", explicacao: "ERRADO: O ECA garante prioridade absoluta no atendimento em saúde, educação e demais direitos." },
+{ pergunta: "A Constituição Federal de 1988 prevê que é dever da família, sociedade e Estado assegurar direitos a crianças, adolescentes e jovens.", resposta: "CERTO", explicacao: "CERTO: CF/88, art. 227, estabelece deveres de proteção e prioridade absoluta." },
+{ pergunta: "O SUS é o principal responsável pelo cuidado à saúde de adolescentes no Brasil.", resposta: "CERTO", explicacao: "CERTO: O Sistema Único de Saúde garante atenção integral à saúde de crianças e adolescentes." },
+{ pergunta: "O conceito de atenção integral à saúde considera apenas aspectos biológicos do adolescente.", resposta: "ERRADO", explicacao: "ERRADO: A atenção integral envolve aspectos biológicos, emocionais, sociais e culturais." },
+{ pergunta: "A integralidade no SUS significa conjunto articulado de ações e serviços preventivos e curativos, individuais e coletivos.", resposta: "CERTO", explicacao: "CERTO: Integralidade visa cuidado completo, desde prevenção até recuperação da saúde." },
+{ pergunta: "O SUS garante a participação da comunidade na organização de ações de saúde.", resposta: "CERTO", explicacao: "CERTO: Artigo 7º da Lei 8.080 prevê participação comunitária." },
+{ pergunta: "A integralidade da assistência exclui a necessidade de integração intersetorial com educação e assistência social.", resposta: "ERRADO", explicacao: "ERRADO: Integralidade requer integração intersetorial para abordar determinantes sociais da saúde." },
+{ pergunta: "A proteção integral à saúde do adolescente envolve atenção a maus-tratos, negligência e violência sexual.", resposta: "CERTO", explicacao: "CERTO: Proteção integral garante cuidado seguro e prevenção de violências." },
+{ pergunta: "O cuidado integral à saúde de adolescentes no contexto socioeducativo exige sigilo e protagonismo juvenil.", resposta: "CERTO", explicacao: "CERTO: Sigilo e participação ativa do adolescente são essenciais para efetividade do cuidado." },
+{ pergunta: "As Diretrizes Nacionais de 2010 estabelecem estratégias para atenção integral à saúde de adolescentes e jovens.", resposta: "CERTO", explicacao: "CERTO: Diretrizes orientam planejamento, execução e monitoramento de ações de saúde integral." },
+{ pergunta: "Entre os eixos estruturantes das Diretrizes Nacionais estão: participação juvenil, equidade de gêneros e cultura de paz.", resposta: "CERTO", explicacao: "CERTO: São eixos essenciais para planejamento e execução de políticas de saúde integral." },
+{ pergunta: "Os direitos sexuais e reprodutivos não são considerados nas Diretrizes Nacionais de Atenção à Saúde de Adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: Direitos sexuais e reprodutivos são eixo estruturante central." },
+{ pergunta: "O projeto de vida é um tema transversal recomendado pelas Diretrizes Nacionais para atenção integral à saúde.", resposta: "CERTO", explicacao: "CERTO: Projetos de vida ajudam adolescentes a planejar o futuro e tomar decisões saudáveis." },
+{ pergunta: "A ética e cidadania são princípios incorporados à atenção integral à saúde de adolescentes e jovens.", resposta: "CERTO", explicacao: "CERTO: Diretrizes enfatizam ética e cidadania como parte do cuidado integral." },
+{ pergunta: "A igualdade racial e étnica é desconsiderada nas Diretrizes Nacionais de atenção à saúde do adolescente.", resposta: "ERRADO", explicacao: "ERRADO: Diretrizes incorporam igualdade racial e étnica como eixo estruturante." },
+{ pergunta: "O acolhimento, escuta e confidencialidade são elementos fundamentais para favorecer o cuidado integral.", resposta: "CERTO", explicacao: "CERTO: São práticas essenciais para garantir segurança e confiança no atendimento." },
+{ pergunta: "O SUS considera adolescentes de 10 a 19 anos, segundo recomendação da OMS.", resposta: "CERTO", explicacao: "CERTO: OMS define adolescência como 10-19 anos, adotado pelo SUS para políticas de saúde." },
+{ pergunta: "As cadernetas de saúde do adolescente são instrumentos importantes para acompanhar desenvolvimento e planejar atividades.", resposta: "CERTO", explicacao: "CERTO: Cadernetas permitem monitoramento contínuo do crescimento, vacinação e saúde geral." },
+{ pergunta: "As Diretrizes Nacionais recomendam ignorar a intersetorialidade no atendimento à saúde de adolescentes.", resposta: "ERRADO", explicacao: "ERRADO: Intersetorialidade é fundamental para atender às múltiplas necessidades dos adolescentes." },
+{ pergunta: "A atenção integral à saúde de adolescentes envolve apenas profissionais da saúde.", resposta: "ERRADO", explicacao: "ERRADO: Todos os profissionais que interagem com adolescentes devem considerar atenção integral." },
+{ pergunta: "O debate sobre determinantes de saúde é recomendado nas Diretrizes para orientar políticas públicas.", resposta: "CERTO", explicacao: "CERTO: Determinantes sociais influenciam a saúde, devendo ser considerados nas estratégias do SUS." },
+{ pergunta: "A sensibilização de gestores e profissionais é um objetivo central das Diretrizes Nacionais.", resposta: "CERTO", explicacao: "CERTO: Diretrizes visam mobilizar profissionais para atuação integral e intersetorial." },
+{ pergunta: "As políticas públicas voltadas à saúde de adolescentes não devem considerar diferenças de gênero ou orientação sexual.", resposta: "ERRADO", explicacao: "ERRADO: Diretrizes preveem atenção específica considerando gênero e orientação sexual." },
+{ pergunta: "O cuidado integral busca promover protagonismo juvenil no contexto socioeducativo.", resposta: "CERTO", explicacao: "CERTO: Protagonismo fortalece autonomia, responsabilidade e participação do adolescente." },
+{ pergunta: "Os profissionais devem sempre garantir confidencialidade, exceto em casos previstos em lei.", resposta: "CERTO", explicacao: "CERTO: Confidencialidade é regra, mas pode ser quebrada legalmente em situações de risco." },
+{ pergunta: "A atenção integral à saúde não inclui ações de promoção e prevenção, apenas tratamento de doenças.", resposta: "ERRADO", explicacao: "ERRADO: Integralidade inclui promoção, prevenção, proteção e recuperação da saúde." },
+{ pergunta: "O direito à informação sobre a saúde é garantido aos adolescentes pelo SUS.", resposta: "CERTO", explicacao: "CERTO: Adolescentes têm direito a informações sobre sua saúde, conforme Lei 8.080/90." },
+{ pergunta: "A equidade de gênero significa oferecer o mesmo tratamento a todos os adolescentes, sem considerar desigualdades sociais.", resposta: "ERRADO", explicacao: "ERRADO: Equidade de gênero busca justiça, considerando desigualdades e necessidades específicas." },
+{ pergunta: "O ECA reconhece adolescentes como sujeitos de direitos e titulares de garantias fundamentais específicas.", resposta: "CERTO", explicacao: "CERTO: ECA institui proteção integral e reconhecimento de direitos próprios da adolescência." },
+{ pergunta: "A proteção integral inclui garantir acesso à educação, saúde, moradia e cultura.", resposta: "CERTO", explicacao: "CERTO: Direitos abrangentes são parte do conceito de proteção integral." },
+{ pergunta: "A atenção à saúde de adolescentes deve desconsiderar contextos socioeconômicos e culturais.", resposta: "ERRADO", explicacao: "ERRADO: Contextos sociais e culturais influenciam diretamente o desenvolvimento e saúde do adolescente." },
+{ pergunta: "A atenção integral deve considerar determinantes de saúde, como alimentação, moradia e acesso a serviços.", resposta: "CERTO", explicacao: "CERTO: Determinantes sociais impactam diretamente na saúde integral do adolescente." },
+{ pergunta: "O Ministério da Saúde recomenda articulação com escolas e serviços comunitários para ampliar acesso à saúde.", resposta: "CERTO", explicacao: "CERTO: Parcerias aumentam alcance e eficácia do atendimento à saúde integral." },
+{ pergunta: "A confidencialidade não é relevante para adolescentes em cumprimento de medida socioeducativa.", resposta: "ERRADO", explicacao: "ERRADO: Confidencialidade é essencial para confiança e segurança no atendimento." },
+{ pergunta: "O SUS prevê a utilização de epidemiologia para estabelecer prioridades e alocação de recursos.", resposta: "CERTO", explicacao: "CERTO: Epidemiologia orienta planejamento, priorização e avaliação de políticas de saúde." },
+{ pergunta: "Os princípios da universalidade, integralidade e equidade são fundamentais para a atenção à saúde dos adolescentes.", resposta: "CERTO", explicacao: "CERTO: São princípios básicos do SUS que norteiam todas as ações de saúde." },
+{ pergunta: "A atenção integral à saúde inclui cuidados físicos, emocionais, sociais e culturais.", resposta: "CERTO", explicacao: "CERTO: Integralidade envolve múltiplas dimensões do desenvolvimento do adolescente." },
+{ pergunta: "A participação juvenil é um eixo estruturante para fortalecer protagonismo no cuidado à saúde.", resposta: "CERTO", explicacao: "CERTO: Participação ativa dos adolescentes é essencial para o sucesso das políticas de saúde." },
+{ pergunta: "Diretrizes Nacionais de 2010 indicam apenas recomendações para profissionais da saúde, sem envolver gestores.", resposta: "ERRADO", explicacao: "ERRADO: Diretrizes visam sensibilizar gestores, profissionais e comunidade para atenção integral." },
+{ pergunta: "A cultura de paz é um tema transversal recomendado nas estratégias de atenção à saúde de adolescentes.", resposta: "CERTO", explicacao: "CERTO: Cultura de paz contribui para prevenção de violência e promoção do desenvolvimento saudável." },
+{ pergunta: "A caderneta de saúde do adolescente permite registro de vacinação, desenvolvimento e histórico de saúde.", resposta: "CERTO", explicacao: "CERTO: Instrumento facilita acompanhamento longitudinal da saúde do adolescente." },
+{ pergunta: "As Diretrizes reforçam a necessidade de articulação intersetorial para garantir cuidado integral e equidade.", resposta: "CERTO", explicacao: "CERTO: Coordenação entre saúde, educação, assistência e políticas públicas é fundamental." },
+{ pergunta: "A atenção integral à saúde não precisa considerar especificidades de gênero, raça ou etnia.", resposta: "ERRADO", explicacao: "ERRADO: A abordagem integral deve considerar diferenças de gênero, raça e etnia para promover equidade." },
+{ pergunta: "O protagonismo juvenil deve ser incentivado para fortalecer participação, autonomia e responsabilidade.", resposta: "CERTO", explicacao: "CERTO: Protagonismo fortalece desenvolvimento saudável e engajamento social do adolescente." },
+{ pergunta: "O ECA e as Diretrizes Nacionais convergem para garantir direitos e saúde integral de adolescentes e jovens.", resposta: "CERTO", explicacao: "CERTO: Ambos instrumentos legais e técnicos orientam políticas de proteção integral e atenção à saúde." },
+{ pergunta: "A atenção à saúde de adolescentes deve ser fragmentada e focada apenas em atendimentos médicos isolados.", resposta: "ERRADO", explicacao: "ERRADO: Atenção integral exige abordagem multidimensional, não fragmentada." },
+{ pergunta: "A escuta qualificada e o acolhimento são práticas essenciais na atenção integral à saúde.", resposta: "CERTO", explicacao: "CERTO: Garantem cuidado humanizado e confiança no sistema de saúde." },
+{ pergunta: "Diretrizes Nacionais orientam ações de atenção integral considerando equidade social, de gênero e participação juvenil.", resposta: "CERTO", explicacao: "CERTO: Ações devem ser inclusivas e respeitar direitos fundamentais do adolescente." },
+
+// continuacao
+
+{ pergunta: "De acordo com o Art. 6º do ECA, a adolescência é caracterizada como uma fase de transição entre a infância e a vida adulta, compreendendo indivíduos entre 12 e 18 anos. (Fonte: ECA)", resposta: "", explicacao: "" },
+{ pergunta: "Segundo a Constituição Federal de 1988, artigo 227, compete à família, à sociedade e ao Estado assegurar à criança e ao adolescente, com prioridade absoluta, o direito à vida, à saúde, à educação e à convivência familiar e comunitária. (Fonte: CF/88)", resposta: "", explicacao: "" },
+{ pergunta: "O SUS, regulamentado pela Lei 8.080/1990, organiza a atenção à saúde de adolescentes sob os princípios da universalidade, integralidade e equidade, considerando suas necessidades biológicas, sociais e culturais. (Fonte: Lei 8.080/1990)", resposta: "", explicacao: "" },
+{ pergunta: "Segundo as Diretrizes Nacionais para a Atenção Integral à Saúde de Adolescentes e Jovens, é correto afirmar que a participação juvenil é um eixo estruturante do cuidado integral. (Fonte: Ministério da Saúde, 2010)", resposta: "", explicacao: "" },
+{ pergunta: "De acordo com o ECA, mesmo em situações de internação ou medida socioeducativa, o adolescente tem direito à educação e ao acompanhamento de sua saúde integral. (Fonte: ECA, Lei 8.069/1990)", resposta: "", explicacao: "" },
+{ pergunta: "O princípio da integralidade do SUS implica que o cuidado à saúde do adolescente deve considerar não apenas o atendimento médico, mas também aspectos preventivos, psicossociais e educacionais. (Fonte: Lei 8.080/1990)", resposta: "", explicacao: "" },
+{ pergunta: "Conforme as Diretrizes do Ministério da Saúde, a atenção à saúde de adolescentes deve respeitar o sigilo, promovendo a escuta e o protagonismo juvenil. (Fonte: Diretrizes Nacionais para a Atenção Integral à Saúde de Adolescentes e Jovens, 2010)", resposta: "", explicacao: "" },
+{ pergunta: "A Lei do SINASE (Lei nº 12.594/2012) detalha a execução das medidas socioeducativas e estabelece a necessidade de articulação com políticas públicas de saúde, educação e assistência social para garantir a saúde integral dos adolescentes. (Fonte: SINASE, 2012)", resposta: "", explicacao: "" },
+{ pergunta: "Segundo o WHO (Organização Mundial da Saúde), a adolescência abrange a faixa etária dos 10 aos 19 anos, e o cuidado integral deve levar em conta o desenvolvimento físico, psicológico e social do indivíduo. (Fonte: WHO, 2014)", resposta: "", explicacao: "" },
+{ pergunta: "O ECA estabelece que é dever da família, da comunidade, da sociedade em geral e do poder público assegurar os direitos relativos à vida, saúde, moradia e educação dos adolescentes, refletindo o princípio da proteção integral. (Fonte: ECA, Lei 8.069/1990)", resposta: "", explicacao: "" },
+
+];
+
+// ================= EMBARALHAR =================
+function embaralhar(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+// ================= VARIÁVEIS =================
 let indice = 0;
-let tempoRestante = 60 * 60; // 60 minutos em segundos
-let timerInterval;
+let acertos = 0;
+let respondidas = {};
+let tempo = 60 * 60;
+let timer;
 
-// ====== ELEMENTOS ======
+// ================= ELEMENTOS =================
 const perguntaEl = document.getElementById("pergunta");
-const respostaEl = document.getElementById("resposta");
-const btnCorreto = document.getElementById("btn-correto");
-const btnErrado = document.getElementById("btn-errado");
-const btnProx = document.getElementById("btn-prox");
-const btnVoltar = document.getElementById("btn-voltar");
-const btnReiniciar = document.getElementById("btn-reiniciar");
+const contadorEl = document.getElementById("contador");
+const explicacaoEl = document.getElementById("explicacao");
 const timerEl = document.getElementById("timer");
 
-// ====== FUNÇÕES ======
+// ================= FUNÇÕES =================
 function mostrarPergunta() {
-  respostaEl.innerHTML = "";
-  const p = perguntas[indice];
-  perguntaEl.innerText = `${indice + 1}. ${p.pergunta}`;
+  if (!perguntas[indice]) return;
+
+  perguntaEl.innerText = `${indice + 1}. ${perguntas[indice].pergunta}`;
+  contadorEl.innerText = `Questão ${indice + 1} de ${perguntas.length}`;
+  explicacaoEl.innerText = "";
 }
 
-function verificarResposta(resposta) {
-  const p = perguntas[indice];
-  if(resposta === p.resposta){
-    respostaEl.innerHTML = "✅ Correto!";
+function responder(resp) {
+  if (respondidas[indice]) return;
+
+  respondidas[indice] = true;
+
+  if (resp === perguntas[indice].resposta) {
+    acertos++;
+    explicacaoEl.innerText = "✅ CERTO!";
   } else {
-    respostaEl.innerHTML = `❌ Errado! Explicação: ${p.explicacao}`;
+    explicacaoEl.innerText = `❌ EROOOUUU! ${perguntas[indice].explicacao}`;
+  }
+
+  if (indice === perguntas.length - 1) {
+    finalizar();
   }
 }
 
-function proximaPergunta() {
-  if(indice < perguntas.length - 1){
-    indice++;
-    mostrarPergunta();
-  }
+function finalizar() {
+  clearInterval(timer);
+
+  const percentual = Math.round((acertos / perguntas.length) * 100);
+  const mensagem =
+    percentual >= 90
+      ? "Está no caminho certo!"
+      : "Estude mais!";
+
+  document.getElementById("resultadoFinal").innerHTML = `
+    <strong>Acertos:</strong> ${acertos}<br>
+    <strong>Percentual:</strong> ${percentual}%<br><br>
+    ${mensagem}
+  `;
+
+  document.getElementById("modalFinal").style.display = "block";
 }
 
-function perguntaAnterior() {
-  if(indice > 0){
-    indice--;
-    mostrarPergunta();
-  }
-}
-
-function reiniciarJogo() {
-  indice = 0;
-  tempoRestante = 60 * 60;
-  mostrarPergunta();
-  clearInterval(timerInterval);
-  iniciarTimer();
+function fecharModal() {
+  document.getElementById("modalFinal").style.display = "none";
 }
 
 function iniciarTimer() {
-  timerInterval = setInterval(() => {
-    const min = Math.floor(tempoRestante/60);
-    const sec = tempoRestante % 60;
-    timerEl.innerText = `Tempo restante: ${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-    if(tempoRestante <= 0){
-      clearInterval(timerInterval);
-      alert("Tempo esgotado!");
-    } else {
-      tempoRestante--;
-    }
-  },1000);
+  timer = setInterval(() => {
+    const m = Math.floor(tempo / 60);
+    const s = tempo % 60;
+    timerEl.innerText = `Tempo restante: ${m}:${String(s).padStart(2,'0')}`;
+    if (tempo <= 0) finalizar();
+    tempo--;
+  }, 1000);
 }
 
-// ====== EVENTOS ======
-btnCorreto.addEventListener("click", ()=>verificarResposta("Verdadeiro"));
-btnErrado.addEventListener("click", ()=>verificarResposta("Falso"));
-btnProx.addEventListener("click", proximaPergunta);
-btnVoltar.addEventListener("click", perguntaAnterior);
-btnReiniciar.addEventListener("click", reiniciarJogo);
+// ================= EVENTOS =================
+document.getElementById("btnCerto").onclick = () => responder("CERTO");
+document.getElementById("btnErrado").onclick = () => responder("ERRADO");
 
-// ====== INÍCIO DO JOGO ======
+document.getElementById("btnProx").onclick = () => {
+  if (indice < perguntas.length - 1) {
+    indice++;
+    mostrarPergunta();
+  }
+};
+
+document.getElementById("btnVoltar").onclick = () => {
+  if (indice > 0) {
+    indice--;
+    mostrarPergunta();
+  }
+};
+
+document.getElementById("btnParar").onclick = finalizar;
+
+document.getElementById("btnReiniciar").onclick = () => {
+  indice = 0;
+  acertos = 0;
+  respondidas = {};
+  tempo = 60 * 60;
+  clearInterval(timer);
+  embaralhar(perguntas);
+  mostrarPergunta();
+  iniciarTimer();
+};
+
+// ================= INÍCIO =================
+embaralhar(perguntas);
 mostrarPergunta();
 iniciarTimer();
 </script>
+
 </body>
 </html>
